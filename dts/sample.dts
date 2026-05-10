@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (c) 2026 H2Lab Development Team
+
+/dts-v1/;
+
+#include <st/u5/stm32u599.dtsi>
+#include <dt-bindings/pinctrl/stm32-pinctrl.h>
+#include <sentry.dtsi>
+
+
+// I2C1 bus controller, used by the touchscreen peripheral, and maybe other I2C peripherals as well
+&i2c1 {
+    status = "okay";
+    compatible = "st,stm32u5-i2c";
+    sentry,owner = <0xC001F002>;
+    sentry,label = <0x100>;
+    i2c,hsifreq = <40>;
+    i2c,peripheral-clock = <40>; /* 40MHz APB1 clock */
+    pinctrl-0 = <&i2c1_scl_pb8>, <&i2c1_sda_pb9>;
+};
+
+// Touchscreen peripheral, connected to I2C1 bus controller and to some GPIOs for reset and interrupt lines
+&i2c1 {
+	touch {
+		status = "okay";
+		compatible = "ilitech,ili2130";
+		sentry,owner = <0xC001F002>;
+		sentry,label = <0x101>;
+		pinctrl-0 = <&touch_rstn_pa0>, <&touch_intn_in>, <&touch_intn_out>;
+	};
+};
+
+
+&pinctrl {
+    i2c1_scl_pb8: i2c_scl_pb8 {
+			id = "i2c1_scl";
+            pinmux = <&gpiob 8 STM32_DT_PIN_MODE_ALTFUNC(4)>;
+            pincfg = <STM32_OTYPER_OPEN_DRAIN \
+                              STM32_OSPEEDR_VERY_HIGH_SPEED \
+                              STM32_PUPDR_PULL_UP>;
+    };
+
+    i2c1_sda_pb9: i2c_sda_pb9  {
+			id = "i2c1_sda";
+            pinmux = <&gpiob 9 STM32_DT_PIN_MODE_ALTFUNC(4)>;
+            pincfg = <STM32_OTYPER_OPEN_DRAIN \
+                              STM32_OSPEEDR_VERY_HIGH_SPEED \
+                              STM32_PUPDR_PULL_UP>;
+    };
+
+    touch_rstn_pa0: touch_rstn_pa0 {
+			id = "touch_rstn";
+			pinmux = <&gpioa 0 STM32_DT_PIN_MODE_OUTPUT>;
+			pincfg = <STM32_OTYPER_PUSH_PULL \
+				  STM32_OSPEEDR_VERY_HIGH_SPEED \
+				  STM32_PUPDR_PULL_UP>;
+    };
+
+   touch_intn_in: touch_intn_pa1 {
+			id = "touch_intn";
+			pinmux = <&gpioa 1 STM32_DT_PIN_MODE_INPUT>;
+			pincfg = <STM32_PUPDR_PULL_UP>;
+    };
+
+    touch_intn_out: touch_intn_pb0 {
+			id = "touch_intn";
+			pinmux = <&gpiob 0 STM32_DT_PIN_MODE_OUTPUT>;
+			pincfg = <STM32_OTYPER_PUSH_PULL \
+				  STM32_OSPEEDR_VERY_HIGH_SPEED \
+				  STM32_PUPDR_PULL_UP>;
+    };
+};
+
+

@@ -1,0 +1,13 @@
+config USR_DRV_ILI2130
+  bool  "userspace ILI2130 driver"
+  default y
+  ---help---
+  Support for I2C ILI2130 peripheral
+  select USR_DRV_I2C
+  select WITH_MERLIN
+
+if USR_DRV_ILI2130
+
+rsource 'subprojects/merlin/Kconfig'
+
+endif
